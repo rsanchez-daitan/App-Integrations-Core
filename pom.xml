@@ -20,6 +20,7 @@
         <module>integration-core</module>
         <module>integration-web</module>
         <module>integration-provisioning</module>
+        <module>integration-api-client</module>
     </modules>
 
     <!-- Project Information -->

@@ -67,6 +67,7 @@ public class ApiClientDecoratorTest {
   protected static final String HTTPS_AUTH_URL = "https://auth.url/";
   protected static final String HTTPS_AGENT_URL = "https://nexus.symphony.com:8444/agent";
   protected static final String HTTPS_POD_URL = "https://nexus.symphony.com:443/pod";
+  protected static final String HTTPS_INTEGRATION_URL = "https://nexus.symphony.com:443/integrationapi";
   protected static final String PATH = "path";
   protected static final String RESPONSE_BODY = "response body";
 
@@ -76,7 +77,7 @@ public class ApiClientDecoratorTest {
   @SpyBean
   protected IntegrationProperties properties;
 
-  protected Map<String, String> headerParams = new HashMap<String, String>();
+  protected Map<String, String> headerParams = new HashMap<>();
   protected String[] authNames = {};
 
   protected String body = StringUtils.EMPTY;
@@ -100,6 +101,7 @@ public class ApiClientDecoratorTest {
     when(mockClient.target(HTTPS_AGENT_URL)).thenReturn(mockWt);
     when(mockClient.target(HTTPS_POD_URL)).thenReturn(mockWt);
     when(mockClient.target(HTTPS_AUTH_URL)).thenReturn(mockWt);
+    when(mockClient.target(HTTPS_INTEGRATION_URL)).thenReturn(mockWt);
     when(mockWt.path(PATH)).thenReturn(mockWt);
     when(mockWt.request()).thenReturn(mockInvokBuilder);
     when(mockInvokBuilder.accept(ACCEPT)).thenReturn(mockInvokBuilder);
@@ -119,7 +121,7 @@ public class ApiClientDecoratorTest {
   protected void successfulReAuthSetup() throws RemoteApiException {
     // Mock unauthorized followed by 200 OK response
     when(authenticationProxy.reAuthSessionOrThrow(eq(SESSION_TOKEN), eq(UNAUTHORIZED),
-        any(ApiException.class)))
+        any(Exception.class)))
         .thenReturn(authToken);
     when(mockResp.getStatus()).thenReturn(UNAUTHORIZED, UNAUTHORIZED, OK);
     when(mockStatusType.getFamily()).thenReturn(Response.Status.Family.CLIENT_ERROR,
