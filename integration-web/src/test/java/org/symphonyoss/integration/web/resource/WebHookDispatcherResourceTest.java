@@ -28,7 +28,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -260,7 +260,7 @@ public class WebHookDispatcherResourceTest extends WebHookResourceTest {
         .handle(anyString(), anyString(), any(WebHookPayload.class));
 
     // mocking integration bridge
-    V1Configuration configuration = new V1Configuration();
+    Configuration configuration = new Configuration();
     configuration.setType(TEST_USER);
 
     doReturn(whiIntegration).when(integrationBridge).getIntegrationById(CONFIGURATION_ID);
