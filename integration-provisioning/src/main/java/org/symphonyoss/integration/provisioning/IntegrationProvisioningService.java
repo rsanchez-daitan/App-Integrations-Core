@@ -16,7 +16,7 @@
 
 package org.symphonyoss.integration.provisioning;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 import com.symphony.logging.ISymphonyLogger;
 import com.symphony.logging.SymphonyLoggerFactory;
 
@@ -158,7 +158,7 @@ public class IntegrationProvisioningService {
   private void provisioningApplication(Application application) {
     LOGGER.info("Provisioning application: {}", application.getId());
 
-    V1Configuration configuration = configurationService.setupConfiguration(application);
+    Configuration configuration = configurationService.setupConfiguration(application);
     applicationService.setupApplication(configuration.getConfigurationId(), application);
 
     userService.setupBotUser(application);

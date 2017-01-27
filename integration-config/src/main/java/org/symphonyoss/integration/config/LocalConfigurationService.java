@@ -16,8 +16,8 @@
 
 package org.symphonyoss.integration.config;
 
-import com.symphony.api.pod.model.ConfigurationInstance;
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.Configuration;
 import com.symphony.logging.ISymphonyLogger;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -50,8 +50,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 /**
- * Implementation of the {@link ConfigurationService} that reads a JSON file to load the
- * configurations.
+ * Implementation of the {@link ConfigurationService} that reads a JSON file to load the configurations.
  *
  * Created by rsanchez on 03/05/16.
  */
@@ -138,12 +137,12 @@ public class LocalConfigurationService implements ConfigurationService {
   }
 
   @Override
-  public V1Configuration getConfigurationById(String configurationId, String usedId) {
+  public Configuration getConfigurationById(String configurationId, String usedId) {
     if (configurationId == null) {
       throw new InvalidConfigurationIdException();
     }
 
-    V1Configuration configuration = repository.getConfigurationById(configurationId);
+    Configuration configuration = repository.getConfigurationById(configurationId);
     if (configuration == null) {
       throw new ConfigurationNotFoundException(configurationId);
     }
@@ -152,13 +151,13 @@ public class LocalConfigurationService implements ConfigurationService {
   }
 
   @Override
-  public V1Configuration getConfigurationByType(String configurationType, String userId) {
+  public Configuration getConfigurationByType(String configurationType, String userId) {
     if (configurationType == null) {
       throw new InvalidConfigurationIdException();
     }
 
-    List<V1Configuration> configurations = repository.getConfigurations();
-    for (V1Configuration configuration : configurations) {
+    List<Configuration> configurations = repository.getConfigurations();
+    for (Configuration configuration : configurations) {
       if (configurationType.equals(configuration.getType())) {
         return configuration;
       }
@@ -168,7 +167,7 @@ public class LocalConfigurationService implements ConfigurationService {
   }
 
   @Override
-  public V1Configuration save(V1Configuration configuration, String usedId) {
+  public Configuration save(Configuration configuration, String usedId) {
     if ((configuration == null) || (configuration.getConfigurationId() == null)) {
       throw new InvalidConfigurationIdException();
     }

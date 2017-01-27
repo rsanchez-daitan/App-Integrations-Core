@@ -50,7 +50,7 @@ import javax.ws.rs.core.Response;
  * Created by ecarrenho on 8/28/16.
  */
 @Ignore("not a test per se")
-public class ApiClientDecoratorTest {
+public class ApiClientTestMocks {
 
 
   public static final int UNAUTHORIZED = Response.Status.UNAUTHORIZED.getStatusCode();
@@ -81,8 +81,8 @@ public class ApiClientDecoratorTest {
   protected String[] authNames = {};
 
   protected String body = StringUtils.EMPTY;
-  protected Map<String, Object> formParams = new HashMap<String, Object>();
-  protected List<Object> contentTypes = new ArrayList<Object>();
+  protected Map<String, Object> formParams = new HashMap<>();
+  protected List<Object> contentTypes = new ArrayList<>();
   protected AuthenticationToken authToken = new AuthenticationToken(SESSION_TOKEN2, KM_TOKEN);
 
   @Mock protected Response mockResp;
@@ -124,8 +124,7 @@ public class ApiClientDecoratorTest {
         any(Exception.class)))
         .thenReturn(authToken);
     when(mockResp.getStatus()).thenReturn(UNAUTHORIZED, UNAUTHORIZED, OK);
-    when(mockStatusType.getFamily()).thenReturn(Response.Status.Family.CLIENT_ERROR,
-        Response.Status.Family.SUCCESSFUL);
+    when(mockStatusType.getFamily()).thenReturn(Response.Status.Family.CLIENT_ERROR, Response.Status.Family.SUCCESSFUL);
     when(mockStatusType.getStatusCode()).thenReturn(UNAUTHORIZED, OK);
   }
 

@@ -17,14 +17,13 @@
 package org.symphonyoss.integration.api.client;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import org.symphonyoss.integration.api.client.partial.mocks.TestApiClient;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
-import org.symphonyoss.integration.api.model.Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import java.util.Collections;
 
@@ -39,7 +38,7 @@ import javax.ws.rs.core.Response;
  * Unit tests to validate {@link AbstractApiClient}.
  * Created by Milton Quilzini on 19/01/17.
  */
-public class BaseApiClientTestHelper {
+public class ApiClientTestHelper {
 
   public static final String CHANGED_BEFORE_KEY = "changedBefore";
   public static final String CHANGED_AFTER_KEY = "changedAfter";
@@ -134,6 +133,8 @@ public class BaseApiClientTestHelper {
     doReturn(Response.Status.BAD_REQUEST).when(responseMock).getStatusInfo();
     doReturn(Response.Status.BAD_REQUEST.getStatusCode()).when(responseMock).getStatus();
     doReturn(headers).when(responseMock).getHeaders();
+    doReturn(true).when(responseMock).hasEntity();
+    doReturn("Entity Test: Failure Response").when(responseMock).getEntity();
     return responseMock;
   }
 

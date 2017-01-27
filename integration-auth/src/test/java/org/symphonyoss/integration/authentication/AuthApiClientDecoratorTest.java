@@ -52,7 +52,7 @@ import java.util.List;
  * Created by ecarrenho on 8/26/16.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AuthApiClientDecoratorTest extends ApiClientDecoratorTest {
+public class AuthApiClientDecoratorTest extends ApiClientTestMocks {
 
   protected static final String TOKEN_JSON = "{\"name\": \"sessionToken\",\"token\": \"123\"}";
   protected TypeRef<Token> returnType;

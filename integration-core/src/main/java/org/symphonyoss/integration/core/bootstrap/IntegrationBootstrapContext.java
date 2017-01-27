@@ -18,7 +18,7 @@ package org.symphonyoss.integration.core.bootstrap;
 
 import static org.symphonyoss.integration.logging.DistributedTracingUtils.TRACE_ID;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 import com.symphony.logging.ISymphonyLogger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -81,8 +81,7 @@ public class IntegrationBootstrapContext implements IntegrationBootstrap {
 
   private Map<String, Integration> integrations = new ConcurrentHashMap<>();
 
-  private BlockingQueue<IntegrationBootstrapInfo> integrationsToRegister =
-      new LinkedTransferQueue<>();
+  private BlockingQueue<IntegrationBootstrapInfo> integrationsToRegister = new LinkedTransferQueue<>();
 
   private ExecutorService servicePool;
 
@@ -217,7 +216,7 @@ public class IntegrationBootstrapContext implements IntegrationBootstrap {
     try {
       integration.onCreate(integrationUser);
 
-      V1Configuration config = integration.getConfig();
+      Configuration config = integration.getConfig();
       this.integrations.put(config.getConfigurationId(), integration);
 
       metricsController.addIntegrationTimer(integrationUser);

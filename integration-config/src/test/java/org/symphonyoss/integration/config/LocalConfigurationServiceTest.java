@@ -19,8 +19,8 @@ package org.symphonyoss.integration.config;
 import static org.symphonyoss.integration.utils.WebHookConfigurationUtils.LAST_POSTED_DATE;
 import static org.symphonyoss.integration.utils.WebHookConfigurationUtils.OWNER;
 
-import com.symphony.api.pod.model.ConfigurationInstance;
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -120,7 +120,7 @@ public class LocalConfigurationServiceTest {
   public void getConfigurationById() throws IntegrationConfigException {
     service.init();
 
-    V1Configuration jira = service.getConfigurationById("575062074b54ba5e759c0fd9", TEST_USER);
+    Configuration jira = service.getConfigurationById("575062074b54ba5e759c0fd9", TEST_USER);
 
     Assert.assertNotNull(jira);
     Assert.assertEquals("575062074b54ba5e759c0fd9", jira.getConfigurationId());
@@ -160,7 +160,7 @@ public class LocalConfigurationServiceTest {
   public void getConfigurationByType() throws IntegrationConfigException {
     service.init();
 
-    V1Configuration jira = service.getConfigurationByType("jiraWebHookIntegration", TEST_USER);
+    Configuration jira = service.getConfigurationByType("jiraWebHookIntegration", TEST_USER);
 
     Assert.assertNotNull(jira);
     Assert.assertEquals("575062074b54ba5e759c0fd9", jira.getConfigurationId());
@@ -180,13 +180,13 @@ public class LocalConfigurationServiceTest {
   public void saveConfigurationInClasspath() throws IntegrationConfigException {
     service.init();
 
-    V1Configuration jira = service.getConfigurationById("575062074b54ba5e759c0fd9", TEST_USER);
+    Configuration jira = service.getConfigurationById("575062074b54ba5e759c0fd9", TEST_USER);
     jira.setDescription("Integrating new app with Symphony");
     jira.setEnabled(false);
     jira.setVisible(true);
     service.save(jira, TEST_USER);
 
-    V1Configuration saved = service.getConfigurationById("575062074b54ba5e759c0fd9", TEST_USER);
+    Configuration saved = service.getConfigurationById("575062074b54ba5e759c0fd9", TEST_USER);
 
     Assert.assertEquals("575062074b54ba5e759c0fd9", saved.getConfigurationId());
     Assert.assertEquals("jiraWebHookIntegration", saved.getType());
@@ -231,8 +231,6 @@ public class LocalConfigurationServiceTest {
     Assert.assertEquals("4321", instance.getInstanceId());
     Assert.assertEquals("575062074b54ba5e759c0fd0", instance.getConfigurationId());
     Assert.assertEquals("First GitHub integration", instance.getName());
-    Assert.assertEquals("Integrating GitHub Horizontal Apps with Symphony",
-        instance.getDescription());
     Assert.assertEquals("test3", instance.getCreatorId());
     Assert.assertEquals(new Long(1462371116436L), instance.getCreatedDate());
 
@@ -257,7 +255,6 @@ public class LocalConfigurationServiceTest {
 
     ConfigurationInstance instance =
         service.getInstanceById("575062074b54ba5e759c0fd0", "4321", TEST_USER);
-    instance.setDescription("Change instance description");
     instance.setCreatorId("new-user");
     instance.setOptionalProperties(optionalProperties);
     service.save(instance, TEST_USER);
@@ -268,8 +265,6 @@ public class LocalConfigurationServiceTest {
     Assert.assertEquals("4321", saved.getInstanceId());
     Assert.assertEquals("575062074b54ba5e759c0fd0", saved.getConfigurationId());
     Assert.assertEquals("First GitHub integration", saved.getName());
-    Assert.assertEquals("Change instance description",
-        saved.getDescription());
     Assert.assertEquals("new-user", saved.getCreatorId());
     Assert.assertEquals(new Long(1462371116436L), saved.getCreatedDate());
 

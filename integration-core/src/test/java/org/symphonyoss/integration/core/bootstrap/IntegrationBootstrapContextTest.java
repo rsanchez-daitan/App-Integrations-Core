@@ -28,7 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -110,7 +110,7 @@ public class IntegrationBootstrapContextTest {
     when(this.context.getBeansOfType(Integration.class)).thenReturn(integrations);
 
     // Mocking configuration
-    V1Configuration configuration = new V1Configuration();
+    Configuration configuration = new Configuration();
     configuration.setConfigurationId(CONFIGURATION_ID);
     configuration.setType(WEBHOOKINTEGRATION_TYPE_JIRA);
 

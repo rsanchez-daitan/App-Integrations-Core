@@ -18,7 +18,7 @@ package org.symphonyoss.integration.api.client.partial.mocks;
 
 import org.symphonyoss.integration.api.client.AbstractApiClient;
 
-import org.symphonyoss.integration.api.client.BaseApiClientTestHelper;
+import org.symphonyoss.integration.api.client.ApiClientTestHelper;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
 
 import java.util.Map;
@@ -55,14 +55,14 @@ public class TestApiClient extends AbstractApiClient {
   @Override
   protected void beforeApiCall(Map<String, Object> apiExecutionContext, String path, Map<String, String> queryParams,
       Map<String, String> headerParams) {
-    apiExecutionContext.put(BaseApiClientTestHelper.CHANGED_BEFORE_KEY, true);
+    apiExecutionContext.put(ApiClientTestHelper.CHANGED_BEFORE_KEY, true);
     this.apiExecutionContext = apiExecutionContext;
   }
 
   @Override
   protected void afterApiCall(Map<String, Object> apiExecutionContext, String path, Map<String, String> queryParams,
       Map<String, String> headerParams) {
-    apiExecutionContext.put(BaseApiClientTestHelper.CHANGED_AFTER_KEY, true);
+    apiExecutionContext.put(ApiClientTestHelper.CHANGED_AFTER_KEY, true);
     this.apiExecutionContext = apiExecutionContext;
   }
 

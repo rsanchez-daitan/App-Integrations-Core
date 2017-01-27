@@ -23,14 +23,14 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.api.ConfigurationApi;
-import com.symphony.api.pod.api.ConfigurationInstanceApi;
-import com.symphony.api.pod.client.ApiException;
-import com.symphony.api.pod.model.ConfigurationInstance;
-import com.symphony.api.pod.model.ConfigurationInstanceSubmissionCreate;
-import com.symphony.api.pod.model.ConfigurationInstanceSubmissionUpdate;
-import com.symphony.api.pod.model.V1Configuration;
-import com.symphony.api.pod.model.V1ConfigurationSubmissionCreate;
+import org.symphonyoss.integration.api.ConfigurationApi;
+import org.symphonyoss.integration.api.ConfigurationInstanceApi;
+import org.symphonyoss.integration.api.exception.IntegrationApiException;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceSubmissionCreate;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceSubmissionUpdate;
+import org.symphonyoss.integration.service.model.Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationSubmissionCreate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
@@ -86,16 +86,15 @@ public class RemoteConfigurationServiceTest {
 
   @Test(expected = RemoteConfigurationException.class)
   public void testGetConfigurationByIdFailed() throws Exception {
-    doThrow(ApiException.class).when(
-        configurationApi).v1ConfigurationConfigurationIdGetGet(CONFIGURATION_ID, TOKEN);
+    doThrow(IntegrationApiException.class).when(configurationApi).getConfigurationById(CONFIGURATION_ID, TOKEN);
 
     remoteConfigurationService.getConfigurationById(CONFIGURATION_ID, USER_ID);
   }
 
   @Test(expected = ForbiddenUserException.class)
   public void testGetConfigurationByIdForbidden() throws Exception {
-    ApiException apiException = new ApiException(FORBIDDEN.getStatusCode(), "Forbidden user");
-    when(configurationApi.v1ConfigurationConfigurationIdGetGet(CONFIGURATION_ID, TOKEN)).thenThrow(
+    IntegrationApiException apiException = new IntegrationApiException(FORBIDDEN.getStatusCode(), "Forbidden user");
+    when(configurationApi.getConfigurationById(CONFIGURATION_ID, TOKEN)).thenThrow(
         apiException);
 
     remoteConfigurationService.getConfigurationById(CONFIGURATION_ID, USER_ID);
@@ -103,9 +102,9 @@ public class RemoteConfigurationServiceTest {
 
   @Test
   public void testGetConfigurationById() throws Exception {
-    V1Configuration configuration = buildV1Configuration();
+    Configuration configuration = buildConfiguration();
 
-    when(configurationApi.v1ConfigurationConfigurationIdGetGet(CONFIGURATION_ID, TOKEN)).thenReturn(
+    when(configurationApi.getConfigurationById(CONFIGURATION_ID, TOKEN)).thenReturn(
         configuration);
 
     assertEquals(configuration,
@@ -114,8 +113,8 @@ public class RemoteConfigurationServiceTest {
 
   @Test(expected = RemoteConfigurationException.class)
   public void testGetConfigurationByTypeFailed() throws Exception {
-    doThrow(ApiException.class).when(
-        configurationApi).v1ConfigurationTypeConfigurationTypeGetGet(CONFIGURATION_TYPE,
+    doThrow(IntegrationApiException.class).when(
+        configurationApi).getConfigurationByType(CONFIGURATION_TYPE,
             TOKEN);
 
     remoteConfigurationService.getConfigurationByType(CONFIGURATION_TYPE, USER_ID);
@@ -123,9 +122,9 @@ public class RemoteConfigurationServiceTest {
 
   @Test(expected = ConfigurationNotFoundException.class)
   public void testGetConfigurationByTypeNotFound() throws Exception {
-    ApiException exception = new ApiException(STATUS_CODE_BAD_REQUEST, "Configuration not found");
+    IntegrationApiException exception = new IntegrationApiException(STATUS_CODE_BAD_REQUEST, "Configuration not found");
 
-    when(configurationApi.v1ConfigurationTypeConfigurationTypeGetGet(CONFIGURATION_TYPE,
+    when(configurationApi.getConfigurationByType(CONFIGURATION_TYPE,
         TOKEN)).thenThrow(exception);
 
     remoteConfigurationService.getConfigurationByType(CONFIGURATION_TYPE, USER_ID);
@@ -133,9 +132,9 @@ public class RemoteConfigurationServiceTest {
 
   @Test
   public void testGetConfigurationByType() throws Exception {
-    V1Configuration configuration = buildV1Configuration();
+    Configuration configuration = buildConfiguration();
 
-    when(configurationApi.v1ConfigurationTypeConfigurationTypeGetGet(CONFIGURATION_TYPE,
+    when(configurationApi.getConfigurationByType(CONFIGURATION_TYPE,
         TOKEN)).thenReturn(configuration);
 
     assertEquals(configuration,
@@ -144,56 +143,55 @@ public class RemoteConfigurationServiceTest {
 
   @Test(expected = RemoteConfigurationException.class)
   public void testSaveConfigurationCreateFailed() throws Exception {
-    V1Configuration configuration = buildV1Configuration();
+    Configuration configuration = buildConfiguration();
 
-    when(configurationApi.v1ConfigurationConfigurationIdGetGet(CONFIGURATION_ID,
-        TOKEN)).thenThrow(new ApiException(STATUS_CODE_BAD_REQUEST,
+    when(configurationApi.getConfigurationById(CONFIGURATION_ID,
+        TOKEN)).thenThrow(new IntegrationApiException(STATUS_CODE_BAD_REQUEST,
         API_EXCEPTION_MESSAGE));
 
-    doThrow(ApiException.class).when(configurationApi).v1ConfigurationCreatePost(eq(TOKEN),
-        any(V1ConfigurationSubmissionCreate.class));
+    doThrow(IntegrationApiException.class).when(configurationApi).createConfiguration(eq(TOKEN),
+        any(ConfigurationSubmissionCreate.class));
 
     remoteConfigurationService.save(configuration, USER_ID);
   }
 
   @Test
   public void testSaveConfigurationCreate() throws Exception {
-    V1Configuration configuration = buildV1Configuration();
+    Configuration configuration = buildConfiguration();
 
-    when(configurationApi.v1ConfigurationConfigurationIdGetGet(CONFIGURATION_ID,
-        TOKEN)).thenThrow(new ApiException(STATUS_CODE_BAD_REQUEST,
+    when(configurationApi.getConfigurationById(CONFIGURATION_ID,
+        TOKEN)).thenThrow(new IntegrationApiException(STATUS_CODE_BAD_REQUEST,
         API_EXCEPTION_MESSAGE));
 
-    when(configurationApi.v1ConfigurationCreatePost(eq(TOKEN),
-        any(V1ConfigurationSubmissionCreate.class))).thenReturn(configuration);
+    when(configurationApi.createConfiguration(eq(TOKEN),
+        any(ConfigurationSubmissionCreate.class))).thenReturn(configuration);
 
     assertEquals(configuration, remoteConfigurationService.save(configuration, USER_ID));
   }
 
   @Test(expected = RemoteConfigurationException.class)
   public void testSaveConfigurationUpdateFailed() throws Exception {
-    V1Configuration configuration = buildV1Configuration();
+    Configuration configuration = buildConfiguration();
     // make the api update work
-    doThrow(ApiException.class).when(
-        configurationApi).v1ConfigurationConfigurationIdUpdatePut(eq(CONFIGURATION_ID), eq(TOKEN),
-            any(V1ConfigurationSubmissionCreate.class));
+    doThrow(IntegrationApiException.class).when(
+        configurationApi).updateConfiguration(eq(CONFIGURATION_ID), eq(TOKEN),
+            any(ConfigurationSubmissionCreate.class));
     remoteConfigurationService.save(configuration, USER_ID);
   }
 
   @Test
   public void testSaveConfigurationUpdate() throws Exception {
-    V1Configuration configuration = buildV1Configuration();
+    Configuration configuration = buildConfiguration();
     // make the api update work
-    when(configurationApi.v1ConfigurationConfigurationIdUpdatePut(eq(CONFIGURATION_ID), eq(TOKEN),
-        any(V1ConfigurationSubmissionCreate.class))).thenReturn(configuration);
+    when(configurationApi.updateConfiguration(eq(CONFIGURATION_ID), eq(TOKEN),
+        any(ConfigurationSubmissionCreate.class))).thenReturn(configuration);
     assertEquals(configuration, remoteConfigurationService.save(configuration, USER_ID));
   }
 
   @Test(expected = RemoteConfigurationException.class)
   public void testGetInstanceByIdFailed() throws Exception {
-    doThrow(ApiException.class).when(
-        configurationInstanceApi).v1AdminConfigurationConfigurationIdInstanceInstanceIdGetGet(
-            CONFIGURATION_ID, INSTANCE_ID, TOKEN);
+    doThrow(IntegrationApiException.class).when(
+        configurationInstanceApi).getInstanceById(CONFIGURATION_ID, INSTANCE_ID, TOKEN);
 
     remoteConfigurationService.getInstanceById(CONFIGURATION_ID, INSTANCE_ID, USER_ID);
   }
@@ -202,7 +200,7 @@ public class RemoteConfigurationServiceTest {
   public void testGetInstanceById() throws Exception {
     ConfigurationInstance expectedConfigurationInstance = buildConfigInstance();
 
-    when(configurationInstanceApi.v1AdminConfigurationConfigurationIdInstanceInstanceIdGetGet(
+    when(configurationInstanceApi.getInstanceById(
         CONFIGURATION_ID, INSTANCE_ID, TOKEN)).thenReturn(expectedConfigurationInstance);
 
     ConfigurationInstance configurationInstance =
@@ -215,13 +213,13 @@ public class RemoteConfigurationServiceTest {
   public void testSaveConfigurationInstanceCreateFailed() throws Exception {
     ConfigurationInstance instance = buildConfigInstance();
 
-    when(configurationInstanceApi.v1AdminConfigurationConfigurationIdInstanceInstanceIdGetGet(
+    when(configurationInstanceApi.getInstanceById(
         CONFIGURATION_ID,
         INSTANCE_ID, TOKEN)).thenThrow(
-        new ApiException(STATUS_CODE_BAD_REQUEST, API_EXCEPTION_MESSAGE));
+        new IntegrationApiException(STATUS_CODE_BAD_REQUEST, API_EXCEPTION_MESSAGE));
 
-    doThrow(ApiException.class).when(
-        configurationInstanceApi).v1ConfigurationConfigurationIdInstanceCreatePost(
+    doThrow(IntegrationApiException.class).when(
+        configurationInstanceApi).createInstance(
             eq(CONFIGURATION_ID), eq(TOKEN),
             any(ConfigurationInstanceSubmissionCreate.class));
 
@@ -232,12 +230,12 @@ public class RemoteConfigurationServiceTest {
   public void testSaveConfigurationInstanceCreate() throws Exception {
     ConfigurationInstance instance = buildConfigInstance();
 
-    when(configurationInstanceApi.v1AdminConfigurationConfigurationIdInstanceInstanceIdGetGet(
+    when(configurationInstanceApi.getInstanceById(
         CONFIGURATION_ID,
         INSTANCE_ID, TOKEN)).thenThrow(
-        new ApiException(STATUS_CODE_BAD_REQUEST, API_EXCEPTION_MESSAGE));
+        new IntegrationApiException(STATUS_CODE_BAD_REQUEST, API_EXCEPTION_MESSAGE));
 
-    when(configurationInstanceApi.v1ConfigurationConfigurationIdInstanceCreatePost(
+    when(configurationInstanceApi.createInstance(
         eq(CONFIGURATION_ID), eq(TOKEN),
         any(ConfigurationInstanceSubmissionCreate.class))).thenReturn(instance);
 
@@ -248,8 +246,8 @@ public class RemoteConfigurationServiceTest {
   public void testSaveConfigurationInstanceUpdateFailed() throws Exception {
     ConfigurationInstance instance = buildConfigInstance();
 
-    doThrow(ApiException.class).when(
-        configurationInstanceApi).v1AdminConfigurationConfigurationIdInstanceInstanceIdUpdatePut(
+    doThrow(IntegrationApiException.class).when(
+        configurationInstanceApi).updateInstance(
             eq(CONFIGURATION_ID), eq(INSTANCE_ID), eq(TOKEN),
             any(ConfigurationInstanceSubmissionUpdate.class));
 
@@ -260,15 +258,15 @@ public class RemoteConfigurationServiceTest {
   public void testSaveConfigurationInstanceUpdate() throws Exception {
     ConfigurationInstance instance = buildConfigInstance();
 
-    when(configurationInstanceApi.v1AdminConfigurationConfigurationIdInstanceInstanceIdUpdatePut(
+    when(configurationInstanceApi.updateInstance(
         eq(CONFIGURATION_ID), eq(INSTANCE_ID), eq(TOKEN),
         any(ConfigurationInstanceSubmissionUpdate.class))).thenReturn(instance);
 
     assertEquals(instance, remoteConfigurationService.save(instance, USER_ID));
   }
 
-  private V1Configuration buildV1Configuration() {
-    V1Configuration configuration = new V1Configuration();
+  private Configuration buildConfiguration() {
+    Configuration configuration = new Configuration();
     configuration.setConfigurationId(CONFIGURATION_ID);
     configuration.setType(CONFIGURATION_TYPE);
     configuration.setName(NAME);
@@ -287,7 +285,6 @@ public class RemoteConfigurationServiceTest {
     configInstance.setInstanceId(INSTANCE_ID);
     configInstance.setConfigurationId(CONFIGURATION_ID);
     configInstance.setName(NAME);
-    configInstance.setDescription(DESCRIPTION);
     configInstance.setCreatorId(CREATOR_ID);
     configInstance.setCreatedDate(CREATED_DATE);
     configInstance.setOptionalProperties(optionalProperties);

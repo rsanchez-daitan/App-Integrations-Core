@@ -52,6 +52,7 @@ import org.symphonyoss.integration.authentication.exception.PodUrlNotFoundExcept
 import org.symphonyoss.integration.authentication.metrics.ApiMetricsController;
 import org.symphonyoss.integration.exception.ExceptionMessageFormatter;
 import org.symphonyoss.integration.exception.RemoteApiException;
+import org.symphonyoss.integration.exception.authentication.ConnectivityException;
 import org.symphonyoss.integration.logging.DistributedTracingUtils;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 
@@ -66,7 +67,7 @@ import java.util.Map;
 @SpringBootTest
 @EnableConfigurationProperties
 @ContextConfiguration(classes = {IntegrationProperties.class, AuthenticationProxyImpl.class, IntegrationApiClient.class})
-public class IntegrationApiClientTest extends ApiClientDecoratorTest {
+public class IntegrationApiClientTest extends ApiClientTestMocks {
 
   private Map<String, String> queryParams = new HashMap<>();
 
@@ -137,6 +138,7 @@ public class IntegrationApiClientTest extends ApiClientDecoratorTest {
   @Test
   public void testSuccessfulReAuthorization() throws IntegrationApiException, RemoteApiException {
     successfulReAuthSetup();
+    when(authenticationProxy.httpClientForSessionToken(SESSION_TOKEN2)).thenReturn(mockClient);
 
     String respBody = integrationApiClient.doGet(PATH, queryParams, headerParams, String.class);
 
@@ -171,24 +173,19 @@ public class IntegrationApiClientTest extends ApiClientDecoratorTest {
   @Test
   public void testPodUrlNotFoundException() throws RemoteApiException {
     try {
-      given(properties.getPodUrl()).willReturn(StringUtils.EMPTY);
+      given(properties.getSymphonyUrl()).willReturn(StringUtils.EMPTY);
       integrationApiClient.init();
       fail();
     } catch (PodUrlNotFoundException e) {
       assertEquals(ExceptionMessageFormatter.format("Authentication Proxy",
-          "Verify the YAML configuration file. No configuration found to the key pod.host"),
+          "Check your YAML configuration file. No configuration found to the key pod.host"),
           e.getMessage());
     }
   }
 
   @Test
-  public void testFailedReAuthorizationDueServerError() throws RemoteApiException, IntegrationApiException {
+  public void testFailedToPostDueServerError() throws RemoteApiException, IntegrationApiException {
     failedReAuthDueServerErrorSetup();
-
-    doThrow(new RemoteApiException(INTERNAL_SERVER_ERROR, new IntegrationApiException(INTERNAL_SERVER_ERROR, "message")))
-        .when(authenticationProxy)
-        .reAuthSessionOrThrow(eq(SESSION_TOKEN), eq(INTERNAL_SERVER_ERROR),
-            any(IntegrationApiException.class));
 
     try {
       integrationApiClient.doGet(PATH, queryParams, headerParams, String.class);
@@ -196,13 +193,13 @@ public class IntegrationApiClientTest extends ApiClientDecoratorTest {
     } catch (IntegrationApiException e) {
       verify(metricsController, times(1)).startApiCall(PATH);
       verify(metricsController, times(1)).finishApiCall(context, PATH, false);
-      verify(authenticationProxy, times(1))
-          .reAuthSessionOrThrow(eq(SESSION_TOKEN), eq(INTERNAL_SERVER_ERROR),
-              any(IntegrationApiException.class));
+      // does not tries to re-authenticate, it should just throw the exception the first time it gets it.
+      verify(authenticationProxy, times(0))
+          .reAuthSessionOrThrow(eq(SESSION_TOKEN), eq(INTERNAL_SERVER_ERROR), any(IntegrationApiException.class));
     }
   }
 
-  @Test(expected = PodConnectivityException.class)
+  @Test(expected = ConnectivityException.class)
   public void testFailedDueForbidden() throws IntegrationApiException {
     failedTimeout();
     integrationApiClient.doGet(PATH, queryParams, headerParams, String.class);

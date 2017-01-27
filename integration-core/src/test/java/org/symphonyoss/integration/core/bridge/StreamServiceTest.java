@@ -29,7 +29,7 @@ import com.symphony.api.agent.client.ApiException;
 import com.symphony.api.agent.model.V2Message;
 import com.symphony.api.agent.model.V2MessageSubmission;
 import com.symphony.api.pod.api.StreamsApi;
-import com.symphony.api.pod.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
 import com.symphony.api.pod.model.Stream;
 import com.symphony.api.pod.model.UserIdList;
 import com.symphony.api.pod.model.V2RoomDetail;

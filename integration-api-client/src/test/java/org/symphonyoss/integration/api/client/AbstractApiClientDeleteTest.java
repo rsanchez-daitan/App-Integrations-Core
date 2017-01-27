@@ -18,20 +18,24 @@ package org.symphonyoss.integration.api.client;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import org.symphonyoss.integration.api.client.partial.mocks.TestApiClient;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
 import org.symphonyoss.integration.api.exception.UnauthorizedApiException;
-import org.symphonyoss.integration.api.model.Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.integration.exception.authentication.ConnectivityException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Invocation;
 
 /**
@@ -39,7 +43,7 @@ import javax.ws.rs.client.Invocation;
  * Created by Milton Quilzini on 23/01/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AbstractApiClientDeleteTest extends BaseApiClientTestHelper {
+public class AbstractApiClientDeleteTest extends ApiClientTestHelper {
 
   @Before
   public void init() {
@@ -66,6 +70,16 @@ public class AbstractApiClientDeleteTest extends BaseApiClientTestHelper {
     Invocation.Builder mockedInvocationBuilder = setUpSuccessfullyBuiltClientOnMockedClient();
     // mocking Invocation.Builder specific operation
     doReturn(mockBadRequestResponse()).when(mockedInvocationBuilder).delete();
+
+    Map<String, String> params = new HashMap<>();
+    this.apiClient.doDelete(PATH_DELETE, params, params, Configuration.class);
+  }
+
+  @Test(expected = ConnectivityException.class)
+  public void testDoDeleteFailureConnectivityException() throws IntegrationApiException {
+    Invocation.Builder mockedInvocationBuilder = setUpSuccessfullyBuiltClientOnMockedClient();
+    // mocking Invocation.Builder specific operation
+    doThrow(new ProcessingException(new IOException())).when(mockedInvocationBuilder).delete();
 
     Map<String, String> params = new HashMap<>();
     this.apiClient.doDelete(PATH_DELETE, params, params, Configuration.class);

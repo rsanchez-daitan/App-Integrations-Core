@@ -16,8 +16,8 @@
 
 package org.symphonyoss.integration.config.model;
 
-import com.symphony.api.pod.model.ConfigurationInstance;
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,25 +31,25 @@ import java.util.Map;
  */
 public class ConfigurationRepository implements Cloneable {
 
-  private Map<String, V1Configuration> configurationMap = new HashMap<>();
+  private Map<String, Configuration> configurationMap = new HashMap<>();
 
   private Map<String, ConfigurationInstance> instanceMap = new HashMap<>();
 
-  public List<V1Configuration> getConfigurations() {
+  public List<Configuration> getConfigurations() {
     return new ArrayList<>(configurationMap.values());
   }
 
-  public void setConfigurations(List<V1Configuration> configurations) {
-    for (V1Configuration configuration : configurations) {
+  public void setConfigurations(List<Configuration> configurations) {
+    for (Configuration configuration : configurations) {
       this.configurationMap.put(configuration.getConfigurationId(), configuration);
     }
   }
 
-  public V1Configuration getConfigurationById(String id) {
+  public Configuration getConfigurationById(String id) {
     return this.configurationMap.get(id);
   }
 
-  public V1Configuration putConfiguration(V1Configuration configuration) {
+  public Configuration putConfiguration(Configuration configuration) {
     return this.configurationMap.put(configuration.getConfigurationId(), configuration);
   }
 

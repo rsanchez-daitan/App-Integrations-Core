@@ -37,6 +37,11 @@
             <artifactId>logging</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.symphonyoss</groupId>
+            <artifactId>integration-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -16,10 +16,9 @@
 
 package org.symphonyoss.integration.provisioning.service;
 
-import static org.symphonyoss.integration.provisioning.properties.AuthenticationProperties
-    .DEFAULT_USER_ID;
+import static org.symphonyoss.integration.provisioning.properties.AuthenticationProperties.DEFAULT_USER_ID;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.service.ConfigurationService;
@@ -54,17 +53,17 @@ public class ConfigurationProvisioningService {
    * @param application Application object.
    * @return Configuration object returned by the API.
    */
-  public V1Configuration setupConfiguration(Application application) {
+  public Configuration setupConfiguration(Application application) {
     String appType = application.getComponent();
 
     LOGGER.info("Provisioning integration configs for: {}", appType);
 
-    V1Configuration configuration =
-        buildV1Configuration(appType, application.getName(), application.getDescription(),
+    Configuration configuration =
+        buildConfiguration(appType, application.getName(), application.getDescription(),
             application.isEnabled(), application.isVisible());
 
     try {
-      V1Configuration savedConfiguration = getConfigurationByType(appType);
+      Configuration savedConfiguration = getConfigurationByType(appType);
 
       if (savedConfiguration != null) {
         configuration.setConfigurationId(savedConfiguration.getConfigurationId());
@@ -83,7 +82,7 @@ public class ConfigurationProvisioningService {
    * @param appType Application type
    * @return Configuration object
    */
-  public V1Configuration getConfigurationByType(String appType) {
+  public Configuration getConfigurationByType(String appType) {
     try {
       return configurationService.getConfigurationByType(appType, DEFAULT_USER_ID);
     } catch (ConfigurationNotFoundException e) {
@@ -102,9 +101,9 @@ public class ConfigurationProvisioningService {
    * @param visible Boolean value to identify if the integration will be visible to all users
    * @return
    */
-  private V1Configuration buildV1Configuration(String type, String name, String description,
+  private Configuration buildConfiguration(String type, String name, String description,
       boolean enabled, boolean visible) {
-    V1Configuration configuration = new V1Configuration();
+    Configuration configuration = new Configuration();
     configuration.setType(type);
     configuration.setName(name);
 

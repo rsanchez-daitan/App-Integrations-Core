@@ -16,7 +16,7 @@
 
 package org.symphonyoss.integration.healthcheck.application;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.test.context.TestComponent;
@@ -42,7 +42,7 @@ public class TestWebHookIntegration implements Integration {
   }
 
   @Override
-  public void onConfigChange(V1Configuration conf) {
+  public void onConfigChange(Configuration conf) {
     // Do nothing
   }
 
@@ -57,7 +57,7 @@ public class TestWebHookIntegration implements Integration {
   }
 
   @Override
-  public V1Configuration getConfig() {
+  public Configuration getConfig() {
     return null;
   }
 

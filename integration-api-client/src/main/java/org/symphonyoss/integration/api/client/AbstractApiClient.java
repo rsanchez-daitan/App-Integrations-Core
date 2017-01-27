@@ -20,11 +20,11 @@ import com.symphony.logging.ISymphonyLogger;
 import com.symphony.logging.SymphonyLoggerFactory;
 
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
 import org.symphonyoss.integration.api.exception.UnauthorizedApiException;
+import org.symphonyoss.integration.exception.authentication.ConnectivityException;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -55,6 +55,7 @@ public abstract class AbstractApiClient {
 
   private static final ISymphonyLogger LOGGER = SymphonyLoggerFactory.getLogger(AbstractApiClient.class);
   private static final String UNAUTHORIZED_EXCEPTION_RETRY_MSG = "Failed to post due to authentication issues, will retry once.";
+  private static final String CONNECTIVITY_EXCEPTION_MESSAGE = "Can't reach Integration API";
 
   private String basePath = "https://localhost";
   private JsonUtils json = new JsonUtils();
@@ -89,6 +90,8 @@ public abstract class AbstractApiClient {
       Response response = invocationBuilder.get();
 
       return handleResponse(returnType, response, apiExecutionContext);
+    } catch (ProcessingException e) {
+      return handleProcessingException(e);
     } finally {
       afterApiCall(apiExecutionContext, path, queryParams, headerParams);
     }
@@ -113,8 +116,18 @@ public abstract class AbstractApiClient {
       Response response = invocationBuilder.post(serialize(body));
 
       return handleResponse(returnType, response, apiExecutionContext);
+    } catch (ProcessingException e) {
+      return handleProcessingException(e);
     } finally {
       afterApiCall(apiExecutionContext, path, queryParams, headerParams);
+    }
+  }
+
+  private <T> T handleProcessingException(ProcessingException e) {
+    if (IOException.class.isInstance(e.getCause())) {
+      throw new ConnectivityException(CONNECTIVITY_EXCEPTION_MESSAGE, e);
+    } else {
+      throw e;
     }
   }
 
@@ -137,6 +150,8 @@ public abstract class AbstractApiClient {
       Response response = invocationBuilder.put(serialize(body));
 
       return handleResponse(returnType, response, apiExecutionContext);
+    } catch (ProcessingException e) {
+      return handleProcessingException(e);
     } finally {
       afterApiCall(apiExecutionContext, path, queryParams, headerParams);
     }
@@ -153,6 +168,8 @@ public abstract class AbstractApiClient {
       Response response = invocationBuilder.delete();
 
       return handleResponse(returnType, response, apiExecutionContext);
+    } catch (ProcessingException e) {
+      return handleProcessingException(e);
     } catch (UnauthorizedApiException e) {
       LOGGER.error(UNAUTHORIZED_EXCEPTION_RETRY_MSG, e);
 
@@ -215,10 +232,8 @@ public abstract class AbstractApiClient {
    * @param ex exception thrown in the first attempt to call the API.
    * @return must return an adequately constructed client.
    */
-  protected Client getReAuthenticatedClient(Map<String, String> queryParams, Map<String, String> headerParams,
-      IntegrationApiException ex) throws IntegrationApiException {
-    return getClientForContext(queryParams, headerParams);
-  }
+  protected abstract Client getReAuthenticatedClient(Map<String, String> queryParams, Map<String, String> headerParams,
+      IntegrationApiException ex) throws IntegrationApiException;
 
   /**
    * Returns the proper client to call the API.<br/>
@@ -228,11 +243,7 @@ public abstract class AbstractApiClient {
    * @param headerParams the header parameters being used in the call.
    * @return must return an adequately constructed client.
    */
-  protected Client getClientForContext(Map<String, String> queryParams, Map<String, String> headerParams) {
-    final ClientConfig clientConfig = new ClientConfig();
-    clientConfig.register(JacksonFeature.class);
-    return ClientBuilder.newClient(clientConfig);
-  }
+  protected abstract Client getClientForContext(Map<String, String> queryParams, Map<String, String> headerParams);
 
   private WebTarget buildWebTarget(String path, Client client, Map<String, String> queryParams, Map<String, String> headerParams) {
     WebTarget target = client.target(this.basePath).path(path);

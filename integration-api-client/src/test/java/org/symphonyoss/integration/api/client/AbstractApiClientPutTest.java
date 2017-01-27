@@ -19,20 +19,24 @@ package org.symphonyoss.integration.api.client;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import org.symphonyoss.integration.api.client.partial.mocks.TestApiClient;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
 import org.symphonyoss.integration.api.exception.UnauthorizedApiException;
-import org.symphonyoss.integration.api.model.Configuration;
+import org.symphonyoss.integration.exception.authentication.ConnectivityException;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 
@@ -41,7 +45,7 @@ import javax.ws.rs.client.Invocation;
  * Created by Milton Quilzini on 23/01/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AbstractApiClientPutTest extends BaseApiClientTestHelper {
+public class AbstractApiClientPutTest extends ApiClientTestHelper {
 
   private static final String UPDATE_VALUE = "test";
 
@@ -70,6 +74,16 @@ public class AbstractApiClientPutTest extends BaseApiClientTestHelper {
     Invocation.Builder mockedInvocationBuilder = setUpSuccessfullyBuiltClientOnMockedClient();
     // mocking Invocation.Builder specific operation
     doReturn(mockBadRequestResponse()).when(mockedInvocationBuilder).put(any(Entity.class));
+
+    Map<String, String> params = new HashMap<>();
+    this.apiClient.doPut(PATH_PUT, null, params, params, Configuration.class);
+  }
+
+  @Test(expected = ConnectivityException.class)
+  public void testDoPutFailureConnectivityException() throws IntegrationApiException {
+    Invocation.Builder mockedInvocationBuilder = setUpSuccessfullyBuiltClientOnMockedClient();
+    // mocking Invocation.Builder specific operation
+    doThrow(new ProcessingException(new IOException())).when(mockedInvocationBuilder).put(any(Entity.class));
 
     Map<String, String> params = new HashMap<>();
     this.apiClient.doPut(PATH_PUT, null, params, params, Configuration.class);

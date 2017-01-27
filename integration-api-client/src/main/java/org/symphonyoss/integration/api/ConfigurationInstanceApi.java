@@ -2,11 +2,11 @@ package org.symphonyoss.integration.api;
 
 import org.symphonyoss.integration.api.client.AbstractApiClient;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
-import org.symphonyoss.integration.api.model.ConfigurationInstance;
-import org.symphonyoss.integration.api.model.ConfigurationInstanceList;
-import org.symphonyoss.integration.api.model.ConfigurationInstanceResponse;
-import org.symphonyoss.integration.api.model.ConfigurationInstanceSubmissionCreate;
-import org.symphonyoss.integration.api.model.ConfigurationInstanceSubmissionUpdate;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceList;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceResponse;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceSubmissionCreate;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceSubmissionUpdate;
 
 import org.apache.commons.lang3.StringUtils;
 

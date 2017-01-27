@@ -18,12 +18,11 @@ package org.symphonyoss.integration.core;
 
 import static org.symphonyoss.integration.model.healthcheck.IntegrationFlags.ValueEnum.NOK;
 
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.Configuration;
 import com.symphony.logging.ISymphonyLogger;
 import com.symphony.logging.SymphonyLoggerFactory;
 
 import org.symphonyoss.integration.BaseIntegration;
-import org.symphonyoss.integration.Integration;
 import org.symphonyoss.integration.authentication.AuthenticationProxy;
 import org.symphonyoss.integration.exception.bootstrap.BootstrapException;
 import org.symphonyoss.integration.model.healthcheck.IntegrationHealth;
@@ -65,7 +64,7 @@ public class NullIntegration extends BaseIntegration {
   }
 
   @Override
-  public void onConfigChange(V1Configuration conf) {
+  public void onConfigChange(Configuration conf) {
     /* This has no implementation due to the nature of this class, it shouldn't do anything as it represents an empty,
      * "null" Integration. */
   }
@@ -82,7 +81,7 @@ public class NullIntegration extends BaseIntegration {
   }
 
   @Override
-  public V1Configuration getConfig() {
+  public Configuration getConfig() {
     return null;
   }
 

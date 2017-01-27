@@ -16,7 +16,7 @@
 
 package org.symphonyoss.integration.web.resource;
 
-import com.symphony.api.pod.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
 import com.symphony.logging.ISymphonyLogger;
 
 import org.springframework.beans.factory.annotation.Autowired;

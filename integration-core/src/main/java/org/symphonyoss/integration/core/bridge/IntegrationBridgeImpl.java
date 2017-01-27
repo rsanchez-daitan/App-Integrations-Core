@@ -20,7 +20,7 @@ import com.symphony.api.agent.client.ApiException;
 import com.symphony.api.agent.model.V2Message;
 import com.symphony.api.agent.model.V2MessageList;
 import com.symphony.api.agent.model.V2MessageSubmission;
-import com.symphony.api.pod.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
 import com.symphony.logging.ISymphonyLogger;
 
 import org.springframework.beans.factory.annotation.Autowired;

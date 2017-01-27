@@ -19,23 +19,22 @@ package org.symphonyoss.integration.config;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 
-import com.symphony.api.pod.api.ConfigurationApi;
-import com.symphony.api.pod.api.ConfigurationInstanceApi;
-import com.symphony.api.pod.client.ApiException;
-import com.symphony.api.pod.model.ConfigurationInstance;
-import com.symphony.api.pod.model.ConfigurationInstanceSubmissionCreate;
-import com.symphony.api.pod.model.ConfigurationInstanceSubmissionUpdate;
-import com.symphony.api.pod.model.V1Configuration;
-import com.symphony.api.pod.model.V1ConfigurationSubmissionCreate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.symphonyoss.integration.api.ConfigurationApi;
+import org.symphonyoss.integration.api.ConfigurationInstanceApi;
+import org.symphonyoss.integration.api.exception.IntegrationApiException;
 import org.symphonyoss.integration.authentication.AuthenticationProxy;
-import org.symphonyoss.integration.authentication.PodApiClientDecorator;
+import org.symphonyoss.integration.authentication.IntegrationApiClient;
 import org.symphonyoss.integration.config.exception.ConfigurationNotFoundException;
 import org.symphonyoss.integration.exception.config.ForbiddenUserException;
 import org.symphonyoss.integration.exception.config.RemoteConfigurationException;
 import org.symphonyoss.integration.service.ConfigurationService;
+import org.symphonyoss.integration.service.model.Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceSubmissionCreate;
+import org.symphonyoss.integration.service.model.ConfigurationInstanceSubmissionUpdate;
+import org.symphonyoss.integration.service.model.ConfigurationSubmissionCreate;
 
 import javax.annotation.PostConstruct;
 
@@ -51,7 +50,7 @@ public class RemoteConfigurationService implements ConfigurationService {
   private AuthenticationProxy authenticationProxy;
 
   @Autowired
-  private PodApiClientDecorator podApiClient;
+  private IntegrationApiClient integrationApiClient;
 
   private ConfigurationApi configurationApi;
 
@@ -60,34 +59,32 @@ public class RemoteConfigurationService implements ConfigurationService {
   @Override
   @PostConstruct
   public void init() {
-    configurationApi = new ConfigurationApi(podApiClient);
-    configurationInstanceApi = new ConfigurationInstanceApi(podApiClient);
+    configurationApi = new ConfigurationApi(integrationApiClient);
+    configurationInstanceApi = new ConfigurationInstanceApi(integrationApiClient);
   }
 
   @Override
-  public V1Configuration getConfigurationById(String configurationId, String userId) {
+  public Configuration getConfigurationById(String configurationId, String userId) {
     try {
-      return configurationApi.v1ConfigurationConfigurationIdGetGet(configurationId,
-          authenticationProxy.getSessionToken(userId));
-    } catch (ApiException e) {
+      return configurationApi.getConfigurationById(configurationId, authenticationProxy.getSessionToken(userId));
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
 
       throw new RemoteConfigurationException(e);
     }
   }
 
-  private void checkExceptionCodeForbidden(ApiException e) {
+  private void checkExceptionCodeForbidden(IntegrationApiException e) {
     if (e.getCode() == FORBIDDEN.getStatusCode()) {
       throw new ForbiddenUserException(e);
     }
   }
 
   @Override
-  public V1Configuration getConfigurationByType(String configurationType, String userId) {
+  public Configuration getConfigurationByType(String configurationType, String userId) {
     try {
-      return configurationApi.v1ConfigurationTypeConfigurationTypeGetGet(configurationType,
-          authenticationProxy.getSessionToken(userId));
-    } catch (ApiException e) {
+      return configurationApi.getConfigurationByType(configurationType, authenticationProxy.getSessionToken(userId));
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       if (e.getCode() == BAD_REQUEST.getStatusCode()) {
         throw new ConfigurationNotFoundException(configurationType);
@@ -98,7 +95,7 @@ public class RemoteConfigurationService implements ConfigurationService {
   }
 
   @Override
-  public V1Configuration save(V1Configuration configuration, String userId) {
+  public Configuration save(Configuration configuration, String userId) {
     if (configurationExists(configuration, userId)) {
       return updateConfiguration(configuration, userId);
     } else {
@@ -110,9 +107,9 @@ public class RemoteConfigurationService implements ConfigurationService {
   public ConfigurationInstance getInstanceById(String configurationId, String instanceId,
       String userId) {
     try {
-      return configurationInstanceApi.v1AdminConfigurationConfigurationIdInstanceInstanceIdGetGet(
-          configurationId, instanceId, authenticationProxy.getSessionToken(userId));
-    } catch (ApiException e) {
+      return configurationInstanceApi.getInstanceById(configurationId, instanceId,
+          authenticationProxy.getSessionToken(userId));
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       throw new RemoteConfigurationException(e);
     }
@@ -127,35 +124,32 @@ public class RemoteConfigurationService implements ConfigurationService {
     }
   }
 
-  private V1Configuration createConfiguration(V1Configuration configuration, String userId)
-      throws RemoteConfigurationException {
-    V1ConfigurationSubmissionCreate configCreate = buildConfigurationSubmission(configuration);
+  private Configuration createConfiguration(Configuration configuration, String userId) {
+    ConfigurationSubmissionCreate configCreate = buildConfigurationSubmission(configuration);
 
     try {
-      return configurationApi.v1ConfigurationCreatePost(authenticationProxy.getSessionToken(userId),
-          configCreate);
-    } catch (ApiException e) {
+      return configurationApi.createConfiguration(authenticationProxy.getSessionToken(userId), configCreate);
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       throw new RemoteConfigurationException(e);
     }
   }
 
-  private V1Configuration updateConfiguration(V1Configuration configuration, String userId)
-      throws RemoteConfigurationException {
-    V1ConfigurationSubmissionCreate configCreate = buildConfigurationSubmission(configuration);
+  private Configuration updateConfiguration(Configuration configuration, String userId) {
+    ConfigurationSubmissionCreate configCreate = buildConfigurationSubmission(configuration);
 
     try {
-      return configurationApi.v1ConfigurationConfigurationIdUpdatePut(configuration
-          .getConfigurationId(), authenticationProxy.getSessionToken(userId), configCreate);
-    } catch (ApiException e) {
+      return configurationApi.updateConfiguration(configuration.getConfigurationId(),
+          authenticationProxy.getSessionToken(userId), configCreate);
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       throw new RemoteConfigurationException(e);
     }
   }
 
-  private V1ConfigurationSubmissionCreate buildConfigurationSubmission(
-      V1Configuration configuration) {
-    V1ConfigurationSubmissionCreate configCreate = new V1ConfigurationSubmissionCreate();
+  private ConfigurationSubmissionCreate buildConfigurationSubmission(
+      Configuration configuration) {
+    ConfigurationSubmissionCreate configCreate = new ConfigurationSubmissionCreate();
     configCreate.setType(configuration.getType());
     configCreate.setName(configuration.getName());
     configCreate.setDescription(configuration.getDescription());
@@ -163,13 +157,12 @@ public class RemoteConfigurationService implements ConfigurationService {
     return configCreate;
   }
 
-  private boolean configurationExists(V1Configuration configuration, String userId)
-      throws RemoteConfigurationException {
+  private boolean configurationExists(Configuration configuration, String userId) {
     try {
-      configurationApi.v1ConfigurationConfigurationIdGetGet(configuration.getConfigurationId(),
+      configurationApi.getConfigurationById(configuration.getConfigurationId(),
           authenticationProxy.getSessionToken(userId));
       return true;
-    } catch (ApiException e) {
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       if (e.getCode() == BAD_REQUEST.getStatusCode()) {
         return false;
@@ -179,53 +172,46 @@ public class RemoteConfigurationService implements ConfigurationService {
     }
   }
 
-  private ConfigurationInstance updateInstance(ConfigurationInstance instance, String userId)
-      throws RemoteConfigurationException {
+  private ConfigurationInstance updateInstance(ConfigurationInstance instance, String userId) {
     ConfigurationInstanceSubmissionUpdate configInstanceUpdate =
         new ConfigurationInstanceSubmissionUpdate();
     configInstanceUpdate.setInstanceId(instance.getInstanceId());
     configInstanceUpdate.setConfigurationId(instance.getConfigurationId());
     configInstanceUpdate.setName(instance.getName());
-    configInstanceUpdate.setDescription(instance.getDescription());
     configInstanceUpdate.setOptionalProperties(instance.getOptionalProperties());
 
     try {
-      return configurationInstanceApi
-          .v1AdminConfigurationConfigurationIdInstanceInstanceIdUpdatePut(
-          instance.getConfigurationId(), instance.getInstanceId(), authenticationProxy.getSessionToken(userId),
-          configInstanceUpdate);
-    } catch (ApiException e) {
+      return configurationInstanceApi.updateInstance(instance.getConfigurationId(), instance.getInstanceId(),
+          authenticationProxy.getSessionToken(userId), configInstanceUpdate);
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       throw new RemoteConfigurationException(e);
     }
   }
 
-  private ConfigurationInstance createInstance(ConfigurationInstance instance, String userId)
-      throws RemoteConfigurationException {
+  private ConfigurationInstance createInstance(ConfigurationInstance instance, String userId) {
     ConfigurationInstanceSubmissionCreate configInstanceSub =
         new ConfigurationInstanceSubmissionCreate();
     configInstanceSub.setConfigurationId(instance.getConfigurationId());
     configInstanceSub.setName(instance.getName());
-    configInstanceSub.setDescription(instance.getDescription());
     configInstanceSub.setCreatorId(instance.getCreatorId());
     configInstanceSub.setOptionalProperties(instance.getOptionalProperties());
 
     try {
-      return configurationInstanceApi.v1ConfigurationConfigurationIdInstanceCreatePost(
-          instance.getConfigurationId(), authenticationProxy.getSessionToken(userId), configInstanceSub);
-    } catch (ApiException e) {
+      return configurationInstanceApi.createInstance(instance.getConfigurationId(),
+          authenticationProxy.getSessionToken(userId), configInstanceSub);
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       throw new RemoteConfigurationException(e);
     }
   }
 
-  private boolean instanceExists(ConfigurationInstance instance, String userId)
-      throws RemoteConfigurationException {
+  private boolean instanceExists(ConfigurationInstance instance, String userId) {
     try {
-      configurationInstanceApi.v1AdminConfigurationConfigurationIdInstanceInstanceIdGetGet(
+      configurationInstanceApi.getInstanceById(
           instance.getConfigurationId(), instance.getInstanceId(), authenticationProxy.getSessionToken(userId));
       return true;
-    } catch (ApiException e) {
+    } catch (IntegrationApiException e) {
       checkExceptionCodeForbidden(e);
       if (e.getCode() == BAD_REQUEST.getStatusCode()) {
         return false;

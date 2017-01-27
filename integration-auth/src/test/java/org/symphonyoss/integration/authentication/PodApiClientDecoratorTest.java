@@ -69,7 +69,7 @@ import java.util.List;
 @EnableConfigurationProperties
 @ContextConfiguration(classes = {IntegrationProperties.class, AuthenticationProxyImpl.class,
     PodApiClientDecorator.class})
-public class PodApiClientDecoratorTest extends ApiClientDecoratorTest {
+public class PodApiClientDecoratorTest extends ApiClientTestMocks {
 
   protected TypeRef<String> returnType;
   protected List<Pair> queryParams = new ArrayList<Pair>();

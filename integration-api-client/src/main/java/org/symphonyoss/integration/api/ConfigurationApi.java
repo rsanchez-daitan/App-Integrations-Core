@@ -18,13 +18,13 @@ package org.symphonyoss.integration.api;
 
 import org.symphonyoss.integration.api.client.AbstractApiClient;
 import org.symphonyoss.integration.api.exception.IntegrationApiException;
-import org.symphonyoss.integration.api.model.Configuration;
-import org.symphonyoss.integration.api.model.ConfigurationList;
-import org.symphonyoss.integration.api.model.ConfigurationResponse;
-import org.symphonyoss.integration.api.model.ConfigurationSubmissionCreate;
-import org.symphonyoss.integration.api.model.ConfigurationToken;
-import org.symphonyoss.integration.api.model.ConfigurationTokenResponse;
-import org.symphonyoss.integration.api.model.SuccessResponse;
+import org.symphonyoss.integration.service.model.Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationList;
+import org.symphonyoss.integration.service.model.ConfigurationResponse;
+import org.symphonyoss.integration.service.model.ConfigurationSubmissionCreate;
+import org.symphonyoss.integration.service.model.ConfigurationToken;
+import org.symphonyoss.integration.service.model.ConfigurationTokenResponse;
+import org.symphonyoss.integration.service.model.SuccessResponse;
 
 import org.apache.commons.lang3.StringUtils;
 

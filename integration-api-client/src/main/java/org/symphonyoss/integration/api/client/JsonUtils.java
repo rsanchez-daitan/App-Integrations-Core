@@ -16,15 +16,11 @@
 
 package org.symphonyoss.integration.api.client;
 
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import org.symphonyoss.integration.api.exception.IntegrationApiException;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import java.io.IOException;
+import org.symphonyoss.integration.api.exception.IntegrationApiException;
 
 public class JsonUtils {
   private ObjectMapper mapper;
@@ -63,7 +59,7 @@ public class JsonUtils {
   public <T> T deserialize(String body, Class<T> returnType) throws IntegrationApiException {
     try {
       return mapper.readValue(body, returnType);
-    } catch (IOException e) {
+    } catch (Exception e) {
       if (returnType.equals(String.class)) {
         return returnType.cast(body);
       } else {

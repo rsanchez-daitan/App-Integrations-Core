@@ -31,11 +31,9 @@ import com.symphony.api.agent.model.V2Message;
 import com.symphony.api.agent.model.V2MessageSubmission;
 import com.symphony.api.auth.client.ApiException;
 import com.symphony.api.pod.api.UsersApi;
-import com.symphony.api.pod.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
 import com.symphony.api.pod.model.Stream;
 import com.symphony.api.pod.model.UserV2;
-import com.symphony.api.pod.model.V2RoomAttributes;
-import com.symphony.api.pod.model.V2RoomDetail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;

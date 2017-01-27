@@ -18,8 +18,8 @@ package org.symphonyoss.integration.web.resource;
 
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.model.ConfigurationInstance;
-import com.symphony.api.pod.model.V1Configuration;
+import org.symphonyoss.integration.service.model.ConfigurationInstance;
+import org.symphonyoss.integration.service.model.Configuration;
 
 import org.mockito.Mock;
 import org.symphonyoss.integration.IntegrationStatus;
@@ -77,7 +77,7 @@ public abstract class WebHookResourceTest {
    * Used within mocked services.
    */
   @Mock
-  protected V1Configuration whiConfiguration;
+  protected Configuration whiConfiguration;
 
   /**
    * Used within mocked services.

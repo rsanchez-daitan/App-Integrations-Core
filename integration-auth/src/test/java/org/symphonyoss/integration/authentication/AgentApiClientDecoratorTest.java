@@ -69,7 +69,7 @@ import java.util.List;
 @EnableConfigurationProperties
 @ContextConfiguration(classes = {IntegrationProperties.class, AuthenticationProxyImpl.class,
     AgentApiClientDecorator.class})
-public class AgentApiClientDecoratorTest extends ApiClientDecoratorTest {
+public class AgentApiClientDecoratorTest extends ApiClientTestMocks {
 
   protected TypeRef<String> returnType;
   protected List<Pair> queryParams = new ArrayList<Pair>();
