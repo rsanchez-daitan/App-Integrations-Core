@@ -16,31 +16,28 @@
 
 package org.symphonyoss.integration.provisioning.service;
 
-import static org.symphonyoss.integration.provisioning.properties.ApplicationProperties.APP_ID;
 import static org.symphonyoss.integration.provisioning.properties.AuthenticationProperties.DEFAULT_USER_ID;
 
-import com.symphony.api.pod.api.AppEntitlementApi;
-import com.symphony.api.pod.client.ApiException;
-import com.symphony.api.pod.model.PodAppEntitlement;
-import com.symphony.api.pod.model.PodAppEntitlementList;
-import com.symphony.api.pod.model.UserV2;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.integration.authentication.AuthenticationProxy;
+import org.symphonyoss.integration.entity.model.User;
+import org.symphonyoss.integration.exception.RemoteApiException;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
+import org.symphonyoss.integration.pod.api.client.AppEntitlementApiClient;
+import org.symphonyoss.integration.pod.api.client.PodHttpApiClient;
+import org.symphonyoss.integration.pod.api.model.AppEntitlement;
 import org.symphonyoss.integration.provisioning.client.AppRepositoryClient;
-import org.symphonyoss.integration.provisioning.client.AppStoreBuilder;
-import org.symphonyoss.integration.provisioning.client.AppStoreWrapper;
-import org.symphonyoss.integration.provisioning.client.PodApiClientDecorator;
+import org.symphonyoss.integration.provisioning.client.model.AppStoreBuilder;
+import org.symphonyoss.integration.provisioning.client.model.AppStoreWrapper;
 import org.symphonyoss.integration.provisioning.exception.AppRepositoryClientException;
 import org.symphonyoss.integration.provisioning.exception.ApplicationProvisioningException;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -54,6 +51,8 @@ public class ApplicationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
 
+  private static final String APP_ID = "id";
+
   @Autowired
   private UserService userService;
 
@@ -64,16 +63,16 @@ public class ApplicationService {
   private AuthenticationProxy authenticationProxy;
 
   @Autowired
-  private PodApiClientDecorator podApiClient;
+  private PodHttpApiClient podApiClient;
 
   @Autowired
   private IntegrationProperties properties;
 
-  private AppEntitlementApi appEntitlementApi;
+  private AppEntitlementApiClient appEntitlementApi;
 
   @PostConstruct
   public void init() {
-    this.appEntitlementApi = new AppEntitlementApi(podApiClient);
+    this.appEntitlementApi = new AppEntitlementApiClient(podApiClient);
   }
 
   /**
@@ -87,7 +86,7 @@ public class ApplicationService {
 
     LOGGER.info("Provisioning Symphony store data for application: {}", appType);
 
-    UserV2 user = userService.getUser(appType);
+    User user = userService.getUser(appType);
     String botUserId = user.getId().toString();
 
     try {
@@ -95,9 +94,9 @@ public class ApplicationService {
       AppStoreWrapper wrapper = AppStoreBuilder.build(application, domain, configurationId,
           botUserId);
 
-      JsonNode app = client.getAppByAppGroupId(appType, DEFAULT_USER_ID);
+      Map<String, String> app = client.getAppByAppGroupId(appType, DEFAULT_USER_ID);
       if (app != null) {
-        client.updateApp(wrapper, DEFAULT_USER_ID, app.path(APP_ID).asText());
+        client.updateApp(wrapper, DEFAULT_USER_ID, app.get(APP_ID));
       } else {
         client.createNewApp(wrapper, DEFAULT_USER_ID);
         updateAppSettings(application);
@@ -120,27 +119,23 @@ public class ApplicationService {
     String sessionToken = authenticationProxy.getSessionToken(DEFAULT_USER_ID);
 
     try {
-      JsonNode app = client.getAppByAppGroupId(appType, DEFAULT_USER_ID);
+      Map<String, String> app = client.getAppByAppGroupId(appType, DEFAULT_USER_ID);
 
       if (app != null) {
-        PodAppEntitlementList appEntitlementList = new PodAppEntitlementList();
-
-        PodAppEntitlement appEntitlement = new PodAppEntitlement();
+        AppEntitlement appEntitlement = new AppEntitlement();
         appEntitlement.setAppId(appType);
         appEntitlement.setAppName(application.getName());
         appEntitlement.setEnable(application.isEnabled());
         appEntitlement.setListed(application.isVisible());
         appEntitlement.setInstall(Boolean.FALSE);
 
-        appEntitlementList.add(appEntitlement);
-
-        appEntitlementApi.v1AdminAppEntitlementListPost(sessionToken, appEntitlementList);
+        appEntitlementApi.updateAppEntitlement(sessionToken, appEntitlement);
 
         return true;
       } else {
         return false;
       }
-    } catch (AppRepositoryClientException | ApiException e) {
+    } catch (AppRepositoryClientException | RemoteApiException e) {
       throw new ApplicationProvisioningException("Fail to update application settings. AppId: " +
           appType, e);
     }

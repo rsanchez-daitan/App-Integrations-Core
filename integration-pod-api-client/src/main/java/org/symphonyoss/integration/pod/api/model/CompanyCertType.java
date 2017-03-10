@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.provisioning.client;
+package org.symphonyoss.integration.pod.api.model;
 
 /**
- * Created by mquilzini on 09/08/16.
+ * Created by rsanchez on 08/03/17.
  */
-public class AppStoreAssetsWrapper {
-  private String loadUrl;
-  private String iconUrl;
+public class CompanyCertType {
 
-  public String getLoadUrl() {
-    return loadUrl;
+  private TypeEnum type;
+
+  public enum TypeEnum {
+    USERSIGNING,
+    USER,
+    OPERATIONSSIGNING,
+    OPERATIONSUSER;
   }
 
-  public void setLoadUrl(String loadUrl) {
-    this.loadUrl = loadUrl;
+  public TypeEnum getType() {
+    return type;
   }
 
-  public String getIconUrl() {
-    return iconUrl;
-  }
-
-  public void setIconUrl(String iconUrl) {
-    this.iconUrl = iconUrl;
+  public void setType(TypeEnum type) {
+    this.type = type;
   }
 }

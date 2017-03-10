@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.provisioning.properties;
+package org.symphonyoss.integration.pod.api.model;
 
 /**
- * Created by rsanchez on 18/10/16.
+ * Holds the information required to create a new company certificate.
+ * Created by rsanchez on 08/03/17.
  */
-public class ApplicationProperties {
+public class CompanyCert {
 
-  public static final String APP_ID = "id";
+  private String pem;
 
-  public static final String TYPE = "type";
+  private CompanyCertAttributes attributes;
 
-  public static final String NAME = "name";
+  public String getPem() {
+    return pem;
+  }
 
-  public static final String DESCRIPTION = "description";
+  public void setPem(String pem) {
+    this.pem = pem;
+  }
 
-  public static final String PUBLISHER = "publisher";
+  public CompanyCertAttributes getAttributes() {
+    return attributes;
+  }
 
-  public static final String CONTEXT = "context";
-
-  public static final String AVATAR = "avatar";
-
+  public void setAttributes(CompanyCertAttributes attributes) {
+    this.attributes = attributes;
+  }
 }
