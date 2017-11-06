@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: integration_bridge
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: ${CONSUL_ENABLED:true}
+        prefix: ${POD_ENV}/infra/${INFRA_NAME}
+    vault:
+      host: ${VAULT_HOST:localhost}
+      port: ${VAULT_PORT:8200}
+      scheme: http
+      enabled: ${VAULT_ENABLED:true}
+      token: ${VAULT_TOKEN}
