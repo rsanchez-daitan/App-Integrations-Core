@@ -5,8 +5,6 @@ RUN apk add --no-cache bash
 COPY ./integration-web/target/integration.jar /opt/symphony/ib/integration.jar
 COPY ./target/libs/*.jar                      /opt/symphony/ib/libs/
 
-RUN mkdir -p /opt/symphony/ib/certs
-
 ENV LOADER_PATH /opt/symphony/ib/libs/
 ENV SERVER_ADDRESS 0.0.0.0
 ENV SERVER_PORT 80
